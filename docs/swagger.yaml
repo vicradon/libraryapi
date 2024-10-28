@@ -1,0 +1,168 @@
+basePath: /
+definitions:
+  models.Book:
+    description: Book model
+    properties:
+      author:
+        description: '@Description The author of this book'
+        example: Markus Zusak
+        type: string
+      created_at:
+        description: '@Description When the book was created'
+        example: "2024-10-27T17:41:52Z"
+        type: string
+      edition:
+        description: '@Description the edition of the book'
+        example: 1st
+        type: string
+      genre:
+        description: '@Description The genre of the book'
+        example: Young Adult Literature
+        type: string
+      id:
+        description: '@Description The unique ID of a book'
+        example: 1
+        type: integer
+      is_available:
+        description: '@Description Whether the book is available for borrowing or
+          already borrowed'
+        type: boolean
+      summary:
+        description: '@Description the summary of this book'
+        example: Liesel's life during WW2 with her stealing books that defy Nazi principles
+        type: string
+      title:
+        description: '@Description The title of the book'
+        example: The Book Thief
+        type: string
+      updated_at:
+        description: '@Description When the book was updated                                                                               //
+          @Description when the book was updated'
+        example: "2024-10-27T17:41:52Z"
+        type: string
+    required:
+    - author
+    - title
+    type: object
+  response.BookSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Book'
+      message:
+        example: Data fetched successfully
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  response.ErrorResponse:
+    description: Error response model
+    properties:
+      message:
+        example: An error occured
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
+host: '{host}'
+info:
+  contact: {}
+  description: This API returns content of a library including books
+  title: Library API
+  version: "1.0"
+paths:
+  /api/v1/books:
+    get:
+      description: Get all the books
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Books fetched successfully
+          schema:
+            $ref: '#/definitions/response.BookSuccessResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all the books in the library system
+      tags:
+      - books
+    post:
+      description: Create a book by supplying a minimum of title and author
+      parameters:
+      - description: Book Data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.Book'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Book created successfully
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create a book in the library system
+      tags:
+      - books
+  /api/v1/books/:id:
+    delete:
+      description: Delete a single book using the id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book deleted successfully
+          schema:
+            $ref: '#/definitions/response.BookSuccessResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete a book in the library
+      tags:
+      - books
+    get:
+      description: Get a single book using the id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book details fetched successfully
+          schema:
+            $ref: '#/definitions/response.BookSuccessResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get a single book in the library
+      tags:
+      - books
+    put:
+      description: Update a single book using the id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book updated successfully
+          schema:
+            $ref: '#/definitions/response.BookSuccessResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update a book in the library
+      tags:
+      - books
+swagger: "2.0"

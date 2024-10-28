@@ -1,0 +1,46 @@
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    env:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build app
+        run: go build -o libraryapi
+      - name: Set up ssh key
+        run: echo "$SSH_KEY" > sshkey.pem
+      - name: Limit ssh key permission
+        run: chmod 600 sshkey.pem
+      - name: Upload binary to server
+        run: rsync -e "ssh -o StrictHostKeyChecking=no -i sshkey.pem" libraryapi $SSH_USER@$SSH_HOST:~/deployments/libraryapi/libraryapi
+
+  deploy:
+    needs: ["build_and_push"]
+    runs-on: ubuntu-latest
+    env:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+    steps:
+      - name: Install sshpass
+        run: sudo apt install -y sshpass
+      - name: Set up ssh key
+        run: echo "$SSH_KEY" > sshkey.pem
+      - name: Limit ssh key permission
+        run: chmod 600 sshkey.pem
+      - name: Deploy app
+        run: |
+          sshpass ssh -o StrictHostKeyChecking=no -i sshkey.pem $SSH_USER@$SSH_HOST <<EOF
+              cd ~/deployments/libraryapi
+              git reset --hard
+              git pull origin main
+              ~/go/bin/swag init
+              pm2 restart libraryapi
+          EOF
